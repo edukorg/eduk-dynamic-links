@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:      
+  db:
+    image: 'bitnami/postgresql'
+    container_name: db
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eduk-dynamic-links
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+
+volumes:
+  postgresql_data:

@@ -1,0 +1,25 @@
+# Use the official Node.js image as the base image
+FROM node:20.9.0-alpine
+
+# Create and change to the app directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+COPY .env ./.env
+
+# Build the NestJS application
+RUN npm run build
+
+# Expose the application port
+EXPOSE 3000
+
+# Start the application
+CMD ["node", "dist/main"]
