@@ -11,6 +11,7 @@ class ParamDto {
 export class AppController {
   @Get()
   getHello(@Query() dto: ParamDto, @Req() req, @Res() res): void {
+    console.log('getHello');
     const userAgent = req.headers['user-agent'];
     if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
       res.redirect('https://apps.apple.com/app/id'+dto.ibi);
@@ -23,6 +24,7 @@ export class AppController {
 
   @Get('.well-known/assetlink.json')
   getAssetLink(@Res() res) {
+    console.log('getAssetLink');
     return res.json([{
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
