@@ -33,7 +33,6 @@ export class AppController {
       this.linksRepository.save({ link: dto.link, ip: req.ip, deleted: false });
       res.redirect('https://play.google.com/store/apps/details?id='+dto.apn+'&pcampaignid=fdl_long&url='+dto.link);
     } else {
-      this.linksRepository.save({ link: dto.link, ip: req.ip, deleted: false });
       res.redirect(dto.link);
     }
   }
