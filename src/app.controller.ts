@@ -1,4 +1,7 @@
 import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LinksEntity } from './entities/links.entity';
+import { Repository } from 'typeorm';
 
 class ParamDto {
   link: string;
@@ -9,31 +12,37 @@ class ParamDto {
 
 @Controller()
 export class AppController {
+  constructor(
+    @InjectRepository(LinksEntity) 
+    private linksRepository: Repository<LinksEntity>
+  ) {}
+
   @Get()
-  getHello(@Query() dto: ParamDto, @Req() req, @Res() res): void {
-    console.log('getHello');
+  async redirect(@Query() dto: ParamDto, @Req() req, @Res() res): Promise<void> {
     const userAgent = req.headers['user-agent'];
+    const exist = await this.linksRepository.findOneBy({ ip: req.ip, deleted: false });
+    if (exist){
+      this.linksRepository.save({ link: exist.link, ip: exist.ip, deleted: true });
+    }
+
+
     if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+      this.linksRepository.save({ link: dto.link, ip: req.ip, deleted: false });
       res.redirect('https://apps.apple.com/app/id'+dto.ibi);
     } else if (userAgent.includes('Android')) {
+      this.linksRepository.save({ link: dto.link, ip: req.ip, deleted: false });
       res.redirect('https://play.google.com/store/apps/details?id='+dto.apn+'&pcampaignid=fdl_long&url='+dto.link);
     } else {
+      this.linksRepository.save({ link: dto.link, ip: req.ip, deleted: false });
       res.redirect(dto.link);
     }
   }
 
-  @Get('.well-known/assetlink.json')
-  getAssetLink(@Res() res) {
-    console.log('getAssetLink');
-    return res.json([{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.example.deep_link",
-        "sha256_cert_fingerprints":
-        ["A1:61:C9:09:30:4B:AF:E6:1A:3D:A3:1D:C1:38:9E:B5:5D:EE:50:B7:70:44:0B:E3:24:92:99:27:5E:2B:6C:EE"]
-      }
-    }]);
+  @Get('link')
+  async link(@Query() ip: string): Promise<LinksEntity> {
+    const link = await this.linksRepository.findOneBy({ ip: ip });
+    this.linksRepository.save({ link: link.link, ip: link.ip, deleted: true });
+    return link;
   }
 }
 
