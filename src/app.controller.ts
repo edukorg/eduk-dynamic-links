@@ -1,7 +1,4 @@
 import { Controller, Get, Query, Req, Res } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { LinksEntity } from './entities/links.entity';
-import { Repository } from 'typeorm';
 
 class ParamDto {
   link: string;
@@ -12,11 +9,6 @@ class ParamDto {
 
 @Controller()
 export class AppController {
-  constructor(
-    @InjectRepository(LinksEntity) 
-    private linksRepository: Repository<LinksEntity>
-  ) {}
-
   @Get()
   async redirect(@Query() dto: ParamDto, @Req() req, @Res() res): Promise<void> {
     const userAgent = req.headers['user-agent'];
