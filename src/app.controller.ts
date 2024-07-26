@@ -14,7 +14,7 @@ export class AppController {
     const userAgent = req.headers['user-agent'];
 
     if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-      res.redirect('https://apps.apple.com/app/id'+dto.ibi);
+      res.redirect('https://apps.apple.com/app/id'+dto.isi);
     } else if (userAgent.includes('Android')) {
       res.redirect('https://play.google.com/store/apps/details?id='+dto.apn+'&pcampaignid=fdl_long&url='+dto.link);
     } else {
