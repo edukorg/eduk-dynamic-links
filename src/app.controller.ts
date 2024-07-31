@@ -8,6 +8,7 @@ class ParamDto {
   apn: string;
   isi: string;
   ibi: string;
+  ip: string;
 }
 
 @Controller()
@@ -20,18 +21,18 @@ export class AppController {
   @Get()
   async redirect(@Query() dto: ParamDto, @Req() req, @Res() res): Promise<void> {
     const userAgent = req.headers['user-agent'];
-    const exist = await this.linksRepository.findOneBy({ ip: req.ip, deleted: false });
+    const exist = await this.linksRepository.findOneBy({ ip: dto.ip, deleted: false });
     if (exist) {
-      await this.linksRepository.update({ ip: req.ip }, { deleted: true });
+      await this.linksRepository.update({ ip: exist.ip }, { deleted: true });
     }
 
     if (userAgent.includes('iPhone') || userAgent.includes('iPad') || userAgent.includes('Android')) {
-      await this.linksRepository.save({ ip: req.ip, link: dto.link, deleted: false });
+      await this.linksRepository.save({ ip: dto.ip, link: dto.link, deleted: false });
 
       if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
         res.redirect('https://apps.apple.com/app/id'+dto.isi);
       } else {
-        res.redirect('https://play.google.com/store/apps/details?id='+dto.apn+'&pcampaignid=fdl_long&url='+dto.link);
+        res.redirect('https://play.google.com/store/apps/details?id='+dto.apn);
       }
     } else {
       res.redirect(dto.link);
@@ -39,8 +40,10 @@ export class AppController {
   }
 
   @Get('link')
-  async getLink(@Req() req): Promise<LinksEntity> {
-    return await this.linksRepository.findOneBy({ ip: req.ip, deleted: false });
+  async getLink(@Query() ip: string): Promise<LinksEntity> {
+    const link = await this.linksRepository.findOneBy({ ip, deleted: false });
+    await this.linksRepository.update({ ip }, { deleted: true });
+    return link;
   }
 
 }
