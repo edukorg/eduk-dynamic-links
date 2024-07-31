@@ -20,8 +20,11 @@ export class AppController {
 
   @Get()
   async redirect(@Query() dto: ParamDto, @Req() req, @Res() res): Promise<void> {
+    console.log('dto', dto);
     const userAgent = req.headers['user-agent'];
+
     const exist = await this.linksRepository.findOneBy({ ip: dto.ip, deleted: false });
+    console.log('exist', exist);
     if (exist) {
       await this.linksRepository.update({ ip: exist.ip }, { deleted: true });
     }
@@ -40,9 +43,11 @@ export class AppController {
   }
 
   @Get('link')
-  async getLink(@Query() ip: string): Promise<LinksEntity> {
-    const link = await this.linksRepository.findOneBy({ ip, deleted: false });
-    await this.linksRepository.update({ ip }, { deleted: true });
+  async getLink(@Query() dto): Promise<LinksEntity> {
+    console.log('ip', dto.ip);
+    const link = await this.linksRepository.findOneBy({ ip: dto.ip, deleted: false });
+    await this.linksRepository.update({ ip: dto.ip}, { deleted: true });
+    console.log('link', link);
     return link;
   }
 
