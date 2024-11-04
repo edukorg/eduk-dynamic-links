@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
-import { LinksEntity } from './entities/links.entity';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import { DynamicLinksEntity } from './entities/dynamic_links.entity';
 
 @Module({
   imports: [
@@ -11,9 +13,9 @@ import { LinksEntity } from './entities/links.entity';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([LinksEntity]),
+    TypeOrmModule.forFeature([DynamicLinksEntity]),
   ],
   controllers: [AppController],
+  providers: [AppService],
 })
-
-export class AppModule {}
+export class AppModule { }
