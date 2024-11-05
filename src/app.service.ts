@@ -18,7 +18,7 @@ export class AppService {
         deleted: false,
       });
       if (exist) {
-        console.log('Alreadt exists dynamic link');
+        console.log('Already exists dynamic link');
         await this.dynamicLinksRepository.update(
           { token: exist.token },
           { deleted: true },
