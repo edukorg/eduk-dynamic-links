@@ -32,7 +32,7 @@ export class AppService {
         userAgent.includes('iPad') ||
         userAgent.includes('Android')
       ) {
-        let expireAt = new Date();
+        const expireAt = new Date();
         expireAt.setMinutes(expireAt.getMinutes() + 5);
         console.log(this._getDateOnTimeZone(expireAt));
         await this.dynamicLinksRepository.save({
@@ -43,10 +43,12 @@ export class AppService {
         console.log('Saved dynamic link');
 
         if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-          res.redirect(`${process.env.URL_APPLE_STORE}/id+dto.isi`);
+          res.redirect(`https://apps.apple.com/app/id${dto.isi}`);
           console.log('Redirecting to Apple Store');
         } else {
-          res.redirect(`${process.env.URL_PLAY_STORE}/details?id='+dto.apn`);
+          res.redirect(
+            `https://play.google.com/store/apps/details?id=${dto.apn}`,
+          );
           console.log('Redirecting to Play Store');
         }
       } else {
@@ -105,4 +107,3 @@ export class AppService {
     return toZonedTime(date, timezone);
   }
 }
-
