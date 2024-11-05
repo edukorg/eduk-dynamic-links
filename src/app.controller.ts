@@ -9,7 +9,7 @@ export class AppController {
 
   @Get()
   async redirect(@Query() dto: DynamicLinksDto, @Req() req, @Res() res) {
-    const userAgent = req.headers['user-agent']; 
+    const userAgent = req.headers['user-agent'];
     await this.appService.redirect(userAgent, dto, res);
   }
 

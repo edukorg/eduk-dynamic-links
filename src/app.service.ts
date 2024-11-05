@@ -7,25 +7,39 @@ import { DynamicLinksDto } from './dtos/dynamic_links.dto';
 @Injectable()
 export class AppService {
   constructor(
-    @InjectRepository(DynamicLinksEntity) 
-    private dynamicLinksRepository: Repository<DynamicLinksEntity>
+    @InjectRepository(DynamicLinksEntity)
+    private dynamicLinksRepository: Repository<DynamicLinksEntity>,
   ) {}
 
   async redirect(userAgent: string, dto: DynamicLinksDto, res: any) {
     try {
-      const exist = await this.dynamicLinksRepository.findOneBy({ token: dto.token, deleted: false });
+      const exist = await this.dynamicLinksRepository.findOneBy({
+        token: dto.token,
+        deleted: false,
+      });
       if (exist) {
         console.log('Alreadt exists dynamic link');
-        await this.dynamicLinksRepository.update({ token: exist.token }, { deleted: true });
+        await this.dynamicLinksRepository.update(
+          { token: exist.token },
+          { deleted: true },
+        );
         console.log('Deleted exists dynamic link');
       }
-  
-      if (userAgent.includes('iPhone') || userAgent.includes('iPad') || userAgent.includes('Android')) {
-        const expireAt = new Date()
-        expireAt.setHours(1);
-        await this.dynamicLinksRepository.save({ token: dto.token, link: dto.link, expire_at: expireAt });
+
+      if (
+        userAgent.includes('iPhone') ||
+        userAgent.includes('iPad') ||
+        userAgent.includes('Android')
+      ) {
+        const expireAt = new Date();
+        expireAt.setMinutes(5);
+        await this.dynamicLinksRepository.save({
+          token: dto.token,
+          link: dto.link,
+          expire_at: expireAt,
+        });
         console.log('Saved dynamic link');
-  
+
         if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
           res.redirect(`${process.env.URL_APPLE_STORE}/id+dto.isi`);
           console.log('Redirecting to Apple Store');
@@ -39,18 +53,24 @@ export class AppService {
       }
     } catch (error) {
       console.error(error);
-      throw new HttpException('Unexpected error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Unexpected error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async getLink(token: string): Promise<DynamicLinksEntity> {
-    const result = await this.dynamicLinksRepository.findOneBy({ token: token, deleted: false });
+    const result = await this.dynamicLinksRepository.findOneBy({
+      token: token,
+      deleted: false,
+    });
 
     if (!result) {
       console.log('Dynamic link not found');
       throw new HttpException('Dynamic link not found', HttpStatus.NOT_FOUND);
     }
-    
+
     const now = new Date();
     if (result.expireAt <= now) {
       await this._deleteDynamicLink(token);
@@ -58,19 +78,23 @@ export class AppService {
       throw new HttpException('Expired dynamic link', HttpStatus.BAD_REQUEST);
     }
 
-
     await this._deleteDynamicLink(token);
     return result;
   }
 
   async _deleteDynamicLink(token: string) {
     try {
-      await this.dynamicLinksRepository.update({ token: token}, { deleted: true });
+      await this.dynamicLinksRepository.update(
+        { token: token },
+        { deleted: true },
+      );
       console.log(`Deleted dynamic link`);
     } catch (error) {
       console.error(error);
-      throw new HttpException('Unexpected error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Unexpected error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-
 }
