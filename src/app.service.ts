@@ -33,6 +33,7 @@ export class AppService {
       ) {
         const expireAt = new Date();
         expireAt.setMinutes(5);
+        console.log(expireAt);
         await this.dynamicLinksRepository.save({
           token: dto.token,
           link: dto.link,
