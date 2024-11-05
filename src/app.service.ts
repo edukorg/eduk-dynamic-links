@@ -3,6 +3,7 @@ import { DynamicLinksEntity } from './entities/dynamic_links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DynamicLinksDto } from './dtos/dynamic_links.dto';
+import { toZonedTime } from 'date-fns-tz';
 
 @Injectable()
 export class AppService {
@@ -31,13 +32,13 @@ export class AppService {
         userAgent.includes('iPad') ||
         userAgent.includes('Android')
       ) {
-        const expireAt = new Date();
-        expireAt.setMinutes(5);
-        console.log(expireAt);
+        let expireAt = new Date();
+        expireAt.setMinutes(expireAt.getMinutes() + 5);
+        console.log(this._getDateOnTimeZone(expireAt));
         await this.dynamicLinksRepository.save({
           token: dto.token,
           link: dto.link,
-          expire_at: expireAt,
+          expireAt: this._getDateOnTimeZone(expireAt),
         });
         console.log('Saved dynamic link');
 
@@ -72,7 +73,7 @@ export class AppService {
       throw new HttpException('Dynamic link not found', HttpStatus.NOT_FOUND);
     }
 
-    const now = new Date();
+    const now = this._getDateOnTimeZone(new Date());
     if (result.expireAt <= now) {
       await this._deleteDynamicLink(token);
       console.log('Expired dynamic link');
@@ -98,4 +99,10 @@ export class AppService {
       );
     }
   }
+
+  _getDateOnTimeZone(date: Date): Date {
+    const timezone = 'America/Sao_Paulo';
+    return toZonedTime(date, timezone);
+  }
 }
+
