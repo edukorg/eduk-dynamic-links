@@ -14,6 +14,7 @@ export class AppService {
 
   async redirect(userAgent: string, dto: DynamicLinksDto, res: any) {
     try {
+      console.log('Token - Redirect: ' + dto.token);
       const exist = await this.dynamicLinksRepository.findOneBy({
         token: dto.token,
         deleted: false,
@@ -65,6 +66,7 @@ export class AppService {
   }
 
   async getLink(token: string): Promise<DynamicLinksEntity> {
+    console.log('Token - GetLink: ' + token);
     const result = await this.dynamicLinksRepository.findOneBy({
       token: token,
       deleted: false,
